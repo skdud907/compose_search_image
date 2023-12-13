@@ -15,8 +15,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-const val IMAGE_HEIGHT = 260
-
 @Composable
 fun LoadingSearchShimmer(
     imageHeight: Dp,

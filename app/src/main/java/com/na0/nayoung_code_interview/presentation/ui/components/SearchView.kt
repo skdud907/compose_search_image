@@ -22,19 +22,17 @@ fun SearchView(
     onChangeScrollPosition: (Int) -> Unit,
     page: Int,
     onTriggerNextPage: () -> Unit,
-    onNavigateToRecipeDetailScreen: (String) -> Unit,
-){
+    onNavigateToRecipeDetailScreen: (UnsplashResponse) -> Unit,
+) {
     Box(modifier = Modifier
         .background(color = MaterialTheme.colors.surface).padding(padding)
     ) {
         if (loading && recipes.isEmpty()) {
             HorizontalDottedProgressBar()
 //            LoadingRecipeListShimmer(imageHeight = 250.dp,)
-        }
-        else if(recipes.isEmpty()){
+        } else if (recipes.isEmpty()) {
             NothingHere()
-        }
-        else {
+        } else {
             LazyColumn{
                 itemsIndexed(
                     items = recipes
@@ -45,8 +43,7 @@ fun SearchView(
                     }
                     SearchCard(
                         search = search,
-                        onClick = { onNavigateToRecipeDetailScreen(search.id)
-                        }
+                        onClick = { onNavigateToRecipeDetailScreen(search) }
                     )
                 }
             }

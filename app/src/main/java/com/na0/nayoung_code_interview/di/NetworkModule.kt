@@ -1,7 +1,6 @@
 package com.na0.nayoung_code_interview.di
 
 import android.util.Log
-import com.google.gson.GsonBuilder
 import com.na0.nayoung_code_interview.BuildConfig
 import com.na0.nayoung_code_interview.network.NetworkService
 import com.na0.nayoung_code_interview.util.Constants
@@ -65,14 +64,4 @@ object NetworkModule {
 
     @Provides
     fun provideBaseUrl() = Constants.BASE_URL
-//
-//    @Singleton
-//    @Provides
-//    fun provideNetworkService(): NetworkService {
-//        return Retrofit.Builder()
-//            .baseUrl("https://food2fork.ca/api/recipe/")
-//            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
-//            .build()
-//            .create(NetworkService::class.java)
-//    }
 }

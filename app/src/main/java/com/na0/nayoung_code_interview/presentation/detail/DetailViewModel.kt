@@ -15,57 +15,49 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 const val STATE_KEY_RECIPE = "recipe.state.recipe.key"
 
 @ExperimentalCoroutinesApi
 @HiltViewModel
-class DetailViewModel
-@Inject
-constructor(
+class DetailViewModel @Inject constructor(
     private val repository: ImageRepository,
     private val state: SavedStateHandle,
-): ViewModel(){
-
+): ViewModel() {
     val detail: MutableState<UnsplashResponse?> = mutableStateOf(null)
-
     val loading = mutableStateOf(false)
 
     init {
-        // restore if process dies
-        state.get<String>(STATE_KEY_RECIPE)?.let{ recipeId ->
-            onTriggerEvent(GetDetailState(recipeId))
+        state.get<UnsplashResponse>(STATE_KEY_RECIPE)?.let{ unsplashResponse ->
+            onTriggerEvent(GetDetailState(unsplashResponse))
         }
     }
 
-    fun onTriggerEvent(event: DetailState){
+    fun onTriggerEvent(event: DetailState) {
         viewModelScope.launch {
             try {
-                when(event){
+                when(event) {
                     is GetDetailState -> {
-                        if(detail.value == null){
-                            getDetail(event.id)
+                        if (detail.value == null) {
+                            getDetail(event.unsplashResponse)
                         }
                     }
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e(Constants.TAG, "launchJob: Exception: ${e}, ${e.cause}")
                 e.printStackTrace()
             }
         }
     }
 
-    private suspend fun getDetail(id: String){
+    private suspend fun getDetail(unsplashResponse: UnsplashResponse) {
         loading.value = true
 
-        // simulate a delay to show loading
         delay(1000)
 
-        val detail = repository.get(id=id)
-        this.detail.value = detail
+        this.detail.value = unsplashResponse
 
-        state.set(STATE_KEY_RECIPE, detail.id)
+        state.set(STATE_KEY_RECIPE, detail.value!!.id)
 
         loading.value = false
     }

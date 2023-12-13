@@ -11,7 +11,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.na0.nayoung_code_interview.Application
 import com.na0.nayoung_code_interview.R
@@ -25,12 +24,9 @@ import javax.inject.Inject
 @ExperimentalMaterialApi
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class SearchFragment : Fragment() {
-
+class SearchFragment: Fragment() {
     @Inject
     lateinit var application: Application
-
-    private val snackbarController = SnackbarController(lifecycleScope)
 
     private val viewModel: SearchViewModel by viewModels()
 
@@ -41,17 +37,10 @@ class SearchFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-
                 val recipes = viewModel.images.value
-
                 val query = viewModel.query.value
-
-//                val selectedCategory = viewModel.selectedCategory.value
-
                 val loading = viewModel.loading.value
-
                 val page = viewModel.page.value
-
                 val scaffoldState = rememberScaffoldState()
 
                 AppTheme(
@@ -64,30 +53,15 @@ class SearchFragment : Fragment() {
                             SearchAppBar(
                                 query = query,
                                 onQueryChanged = viewModel::onQueryChanged,
-                                onExecuteSearch = {
-//                                    if (viewModel.selectedCategory.value?.value == "Milk") {
-//                                        snackbarController.getScope().launch {
-//                                            snackbarController.showSnackbar(
-//                                                scaffoldState = scaffoldState,
-//                                                message = "Invalid category: MILK",
-//                                                actionLabel = "Hide"
-//                                            )
-//                                        }
-//                                    } else {
-                                        viewModel.onTriggerEvent(SearchState.NewSearchState)
-//                                    }
-                                },
-//                                categories = getAllFoodCategories(),
-//                                selectedCategory = selectedCategory,
-                                onSelectedCategoryChanged = viewModel::onSelectedCategoryChanged,
-                                onToggleTheme = application::toggleLightTheme
+                                onExecuteSearch = { viewModel.onTriggerEvent(SearchState.NewSearchState) },
+                                onNavigationToBookMark = { findNavController().navigate(R.id.action_searchFragment_to_bookMarkFragment) }
                             )
                         },
                         scaffoldState = scaffoldState,
                         snackbarHost = {
                             scaffoldState.snackbarHostState
-                        },
-                        ) {
+                        }
+                    ) {
                         SearchView(
                             padding = it,
                             loading = loading,
@@ -95,9 +69,9 @@ class SearchFragment : Fragment() {
                             onChangeScrollPosition = viewModel::onChangeRecipeScrollPosition,
                             page = page,
                             onTriggerNextPage = { viewModel.onTriggerEvent(SearchState.NextPageState) },
-                            onNavigateToRecipeDetailScreen = {
+                            onNavigateToRecipeDetailScreen = { unsplashResponse ->
                                 val bundle = Bundle()
-                                bundle.putString("recipeId", it)
+                                bundle.putParcelable("unsplashResponse", unsplashResponse)
                                 findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
                             }
                         )

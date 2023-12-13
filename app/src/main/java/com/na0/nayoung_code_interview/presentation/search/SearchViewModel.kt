@@ -12,39 +12,24 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 import com.na0.nayoung_code_interview.repository.ImageRepository
 import com.na0.nayoung_code_interview.util.Constants.TAG
 
 const val STATE_KEY_PAGE = "recipe.state.page.key"
 const val STATE_KEY_QUERY = "recipe.state.query.key"
 const val STATE_KEY_LIST_POSITION = "recipe.state.query.list_position"
-const val STATE_KEY_SELECTED_CATEGORY = "recipe.state.query.selected_category"
 
 @HiltViewModel
-class SearchViewModel
-@Inject
-constructor(
+class SearchViewModel @Inject constructor(
     private val repository: ImageRepository,
     private val savedStateHandle: SavedStateHandle,
-) : ViewModel() {
-
-
+): ViewModel() {
     val images: MutableState<List<UnsplashResponse>> = mutableStateOf(ArrayList())
-
     val query = mutableStateOf("")
-
-//    val selectedCategory: MutableState<FoodCategory?> = mutableStateOf(null)
-
     val loading = mutableStateOf(false)
-
-    // Pagination starts at '1' (-1 = exhausted)
     val page = mutableStateOf(1)
-
-    val perPage = mutableStateOf(30)
-
+    val perPage = mutableStateOf(4)
     var recipeListScrollPosition = 0
-
     val searchResponse = mutableListOf<UnsplashResponse>()
 
     init {
@@ -57,23 +42,18 @@ constructor(
         savedStateHandle.get<Int>(STATE_KEY_LIST_POSITION)?.let { p ->
             setListScrollPosition(p)
         }
-//        savedStateHandle.get<FoodCategory>(STATE_KEY_SELECTED_CATEGORY)?.let { c ->
-//            setSelectedCategory(c)
-//        }
 
-        if(recipeListScrollPosition != 0){
+        if (recipeListScrollPosition != 0) {
             onTriggerEvent(SearchState.RestoreStateState)
-        }
-        else{
+        } else {
             onTriggerEvent(SearchState.NewSearchState)
         }
-
     }
 
-    fun onTriggerEvent(event: SearchState){
+    fun onTriggerEvent(event: SearchState) {
         viewModelScope.launch {
             try {
-                when(event){
+                when(event) {
                     is SearchState.NewSearchState -> {
                         newSearch()
                     }
@@ -84,17 +64,16 @@ constructor(
                         restoreState()
                     }
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e(TAG, "launchJob: Exception: ${e}, ${e.cause}")
                 e.printStackTrace()
-            }
-            finally {
+            } finally {
                 Log.d(TAG, "launchJob: finally called.")
             }
         }
     }
 
-    private suspend fun restoreState(){
+    private suspend fun restoreState() {
         loading.value = true
 
         val data = repository.search(query.value, page.value, perPage.value)
@@ -108,20 +87,6 @@ constructor(
 
         images.value = searchResponse
         loading.value = false
-
-//        val results: MutableList<ImagesResponse> = mutableListOf()
-//        for(p in 1..page.value){
-//            val result = repository.search(
-//                perPage = perPage.value,
-//                page = p,
-//                query = query.value
-//            )
-//            results.addAll(result)
-//            if(p == page.value){ // done
-//                recipes.value = results
-//                loading.value = false
-//            }
-//        }
     }
 
     private suspend fun newSearch() {
@@ -134,17 +99,15 @@ constructor(
         restoreState()
     }
 
-    private suspend fun nextPage(){
-        // prevent duplicate event due to recompose happening to quickly
-        if((recipeListScrollPosition + 1) >= (page.value * PAGE_SIZE) ){
+    private suspend fun nextPage() {
+        if ((recipeListScrollPosition + 1) >= (page.value * PAGE_SIZE)) {
             loading.value = true
             incrementPage()
             Log.d(TAG, "nextPage: triggered: ${page.value}")
 
-            // just to show pagination, api is fast
             delay(1000)
 
-            if(page.value > 1){
+            if (page.value > 1) {
                 val results = repository.search(query.value, page.value, perPage.value).results
                 Log.d(TAG, "search: appending")
 
@@ -157,64 +120,41 @@ constructor(
         }
     }
 
-    /**
-     * Append new recipes to the current list of recipes
-     */
-    private fun appendRecipes(recipes: List<UnsplashResponse>){
+    private fun appendRecipes(recipes: List<UnsplashResponse>) {
         val current = ArrayList(this.images.value)
         current.addAll(recipes)
         this.images.value = current
     }
 
-    private fun incrementPage(){
+    private fun incrementPage() {
         setPage(page.value + 1)
     }
 
-    fun onChangeRecipeScrollPosition(position: Int){
+    fun onChangeRecipeScrollPosition(position: Int) {
         setListScrollPosition(position = position)
     }
 
-    /**
-     * Called when a new search is executed.
-     */
     private fun resetSearchState() {
         images.value = listOf()
         page.value = 1
         onChangeRecipeScrollPosition(0)
-//        if (selectedCategory.value?.value != query.value) clearSelectedCategory()
-    }
-
-    private fun clearSelectedCategory() {
-//        setSelectedCategory(null)
-//        selectedCategory.value = null
     }
 
     fun onQueryChanged(query: String) {
         setQuery(query)
     }
 
-    fun onSelectedCategoryChanged(category: String) {
-//        val newCategory = getFoodCategory(category)
-//        setSelectedCategory(newCategory)
-//        onQueryChanged(category)
-    }
-
-    private fun setListScrollPosition(position: Int){
+    private fun setListScrollPosition(position: Int) {
         recipeListScrollPosition = position
         savedStateHandle.set(STATE_KEY_LIST_POSITION, position)
     }
 
-    private fun setPage(page: Int){
+    private fun setPage(page: Int) {
         this.page.value = page
         savedStateHandle.set(STATE_KEY_PAGE, page)
     }
 
-//    private fun setSelectedCategory(category: FoodCategory?){
-//        selectedCategory.value = category
-//        savedStateHandle.set(STATE_KEY_SELECTED_CATEGORY, category)
-//    }
-
-    private fun setQuery(query: String){
+    private fun setQuery(query: String) {
         this.query.value = query
         savedStateHandle.set(STATE_KEY_QUERY, query)
     }

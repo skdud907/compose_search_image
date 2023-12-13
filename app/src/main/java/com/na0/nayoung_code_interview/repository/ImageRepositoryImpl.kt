@@ -11,7 +11,7 @@ class ImageRepositoryImpl(
         return networkService.search(query, page, perPage)
     }
 
-    override suspend fun get(id: String): UnsplashResponse {
+    override suspend fun get(id: String): List<UnsplashResponse> {
         return networkService.get(id)
     }
 }

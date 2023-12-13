@@ -25,7 +25,7 @@ fun loadPicture(url: String, @DrawableRes defaultImage: Int): MutableState<Bitma
     Glide.with(LocalContext.current)
         .asBitmap()
         .load(defaultImage)
-        .into(object : CustomTarget<Bitmap>() {
+        .into(object: CustomTarget<Bitmap>() {
             override fun onLoadCleared(placeholder: Drawable?) { }
             override fun onResourceReady(
                 resource: Bitmap,

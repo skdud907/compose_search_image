@@ -20,11 +20,11 @@ private val LightThemeColors = lightColors(
     onPrimary = Black2,
     secondary = Color.White,
     secondaryVariant = Teal300,
-    onSecondary = Color.Black,
+    onSecondary = Red600,
     error = RedErrorDark,
     onError = RedErrorLight,
     background = Grey1,
-    onBackground = Color.Black,
+    onBackground = Grey2,
     surface = Color.White,
     onSurface = Black2,
 )
@@ -54,12 +54,12 @@ fun AppTheme(
         colors = if (darkTheme) DarkThemeColors else LightThemeColors,
         typography = QuickSandTypography,
         shapes = AppShapes
-    ){
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = if(!darkTheme) Grey1 else Color.Black)
-        ){
+        ) {
             content()
             CircularIndeterminateProgressBar(isDisplayed = displayProgressBar, 0.3f)
             DefaultSnackbar(

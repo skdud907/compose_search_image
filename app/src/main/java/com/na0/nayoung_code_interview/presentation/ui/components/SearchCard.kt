@@ -34,8 +34,7 @@ fun SearchCard(
             .clickable(onClick = onClick),
         elevation = 8.dp,
     ) {
-
-        Column() {
+        Column {
             val image = loadPicture(url = search.urls.thumb, defaultImage = DEFAULT_RECIPE_IMAGE).value
             image?.let { img ->
                 Image(
