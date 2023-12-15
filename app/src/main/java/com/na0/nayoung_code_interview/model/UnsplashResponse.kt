@@ -6,7 +6,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class UnsplashResponse(
     val id: String,
-    val description: String?,
+    val description: String? = null,
     val width: Int,
     val height: Int,
     val created_at: String,

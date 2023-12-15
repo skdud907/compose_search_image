@@ -22,5 +22,9 @@
     <fragment
         android:id="@+id/bookMarkFragment"
         android:name="com.na0.nayoung_code_interview.presentation.bookmark.BookMarkFragment"
-        android:label="BookMarkFragment" />
+        android:label="BookMarkFragment" >
+        <action
+            android:id="@+id/action_bookMarkFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
 </navigation>

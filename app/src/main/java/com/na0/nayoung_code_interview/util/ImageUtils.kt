@@ -13,7 +13,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.na0.nayoung_code_interview.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-const val DEFAULT_RECIPE_IMAGE = R.drawable.empty_plate
+const val DEFAULT_IMAGE_IMAGE = R.drawable.empty_plate
 
 @ExperimentalCoroutinesApi
 @Composable

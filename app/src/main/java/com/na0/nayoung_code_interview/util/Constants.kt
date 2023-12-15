@@ -7,4 +7,7 @@ object Constants {
 
     const val SEARCH_API = "search/photos"
     const val IMAGE_API = "photos"
+
+    const val SCREEN_TYPE_SEARCH = 101
+    const val SCREEN_TYPE_BOOKMARK = 102
 }

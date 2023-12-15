@@ -13,11 +13,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.na0.nayoung_code_interview.repository.ImageRepository
+import com.na0.nayoung_code_interview.repository.LikeImageRepository
 import com.na0.nayoung_code_interview.util.Constants.TAG
 
-const val STATE_KEY_PAGE = "recipe.state.page.key"
-const val STATE_KEY_QUERY = "recipe.state.query.key"
-const val STATE_KEY_LIST_POSITION = "recipe.state.query.list_position"
+const val STATE_KEY_PAGE = "image.state.page.key"
+const val STATE_KEY_QUERY = "image.state.query.key"
+const val STATE_KEY_LIST_POSITION = "image.state.query.list_position"
+const val STATE_LIKE = "image.state.like"
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -25,12 +27,15 @@ class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ): ViewModel() {
     val images: MutableState<List<UnsplashResponse>> = mutableStateOf(ArrayList())
+    var searchResponse = mutableListOf<UnsplashResponse>()
+
     val query = mutableStateOf("")
     val loading = mutableStateOf(false)
     val page = mutableStateOf(1)
     val perPage = mutableStateOf(4)
-    var recipeListScrollPosition = 0
-    val searchResponse = mutableListOf<UnsplashResponse>()
+    val isLike = mutableStateOf(false)
+
+    var imageListScrollPosition = 0
 
     init {
         savedStateHandle.get<Int>(STATE_KEY_PAGE)?.let { p ->
@@ -42,8 +47,11 @@ class SearchViewModel @Inject constructor(
         savedStateHandle.get<Int>(STATE_KEY_LIST_POSITION)?.let { p ->
             setListScrollPosition(p)
         }
+        savedStateHandle.get<Boolean>(STATE_LIKE)?.let { l ->
+            setImageLike(l)
+        }
 
-        if (recipeListScrollPosition != 0) {
+        if (imageListScrollPosition != 0) {
             onTriggerEvent(SearchState.RestoreStateState)
         } else {
             onTriggerEvent(SearchState.NewSearchState)
@@ -100,29 +108,34 @@ class SearchViewModel @Inject constructor(
     }
 
     private suspend fun nextPage() {
-        if ((recipeListScrollPosition + 1) >= (page.value * PAGE_SIZE)) {
+        if ((imageListScrollPosition + 1) >= (page.value * PAGE_SIZE)) {
             loading.value = true
             incrementPage()
             Log.d(TAG, "nextPage: triggered: ${page.value}")
+            Log.d(TAG, "nextPage: imageListScrollPosition: ${imageListScrollPosition}")
 
             delay(1000)
 
             if (page.value > 1) {
+                Log.d(TAG, "nextPage: page = ${page.value}")
                 val results = repository.search(query.value, page.value, perPage.value).results
                 Log.d(TAG, "search: appending")
 
                 for (result in results) {
                     searchResponse.add(result)
                 }
-                appendRecipes(searchResponse)
+                appendImages(searchResponse)
             }
             loading.value = false
         }
     }
 
-    private fun appendRecipes(recipes: List<UnsplashResponse>) {
+    private fun appendImages(images: List<UnsplashResponse>) {
+//        val current = ArrayList(this.searchResponse)
+//        current.addAll(images)
+//        this.searchResponse = current
         val current = ArrayList(this.images.value)
-        current.addAll(recipes)
+        current.addAll(images)
         this.images.value = current
     }
 
@@ -130,14 +143,15 @@ class SearchViewModel @Inject constructor(
         setPage(page.value + 1)
     }
 
-    fun onChangeRecipeScrollPosition(position: Int) {
+    fun onChangeImageScrollPosition(position: Int) {
         setListScrollPosition(position = position)
     }
 
     private fun resetSearchState() {
         images.value = listOf()
         page.value = 1
-        onChangeRecipeScrollPosition(0)
+        searchResponse.clear()
+        onChangeImageScrollPosition(0)
     }
 
     fun onQueryChanged(query: String) {
@@ -145,7 +159,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun setListScrollPosition(position: Int) {
-        recipeListScrollPosition = position
+        imageListScrollPosition = position
         savedStateHandle.set(STATE_KEY_LIST_POSITION, position)
     }
 
@@ -157,5 +171,10 @@ class SearchViewModel @Inject constructor(
     private fun setQuery(query: String) {
         this.query.value = query
         savedStateHandle.set(STATE_KEY_QUERY, query)
+    }
+
+    private fun setImageLike(isLike: Boolean) {
+        this.isLike.value = isLike
+        savedStateHandle.set(STATE_LIKE, isLike)
     }
 }

@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun HorizontalDottedProgressBar() {
-    val color = MaterialTheme.colors.primary
+    val color = MaterialTheme.colors.onSecondary
 
     val infiniteTransition = rememberInfiniteTransition()
     val state = infiniteTransition.animateFloat(
