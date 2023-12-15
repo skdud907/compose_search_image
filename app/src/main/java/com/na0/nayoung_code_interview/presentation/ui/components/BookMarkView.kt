@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -14,6 +16,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.paging.compose.LazyPagingItems
+import com.na0.nayoung_code_interview.model.UnsplashResponse
 import com.na0.nayoung_code_interview.model.db.LikeImageEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -55,7 +59,7 @@ fun BookMarkView(
                             likeImages = likeImage,
                             onClick = { onNavigateToImageDetailScreen(likeImage) },
                             onBookMarkClick = { onBookMarkClick(likeImage) },
-                            likeId = id
+                            likeId = id,
                         )
                     }
                 }

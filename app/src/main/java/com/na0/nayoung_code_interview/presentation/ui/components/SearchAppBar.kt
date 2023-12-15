@@ -30,8 +30,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 fun SearchAppBar(
     query: String,
     onQueryChanged: (String) -> Unit,
-    onExecuteSearch: () -> Unit,
     onNavigationToBookMark: () -> Unit,
+    onSearchClick: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -49,7 +49,7 @@ fun SearchAppBar(
                         .padding(8.dp)
                         .onKeyEvent {
                             if (it.key.keyCode == Key.Enter.keyCode) {
-                                onExecuteSearch()
+                                onSearchClick()
                                 keyboardController?.hideSoftwareKeyboard()
                                 true
                             }
@@ -65,7 +65,7 @@ fun SearchAppBar(
                     ),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            onExecuteSearch()
+                            onSearchClick()
                             keyboardController?.hideSoftwareKeyboard()
                         },
                     ),

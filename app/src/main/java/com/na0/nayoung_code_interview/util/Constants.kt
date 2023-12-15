@@ -10,4 +10,6 @@ object Constants {
 
     const val SCREEN_TYPE_SEARCH = 101
     const val SCREEN_TYPE_BOOKMARK = 102
+
+    const val ITEMS_PER_PAGE = 10
 }

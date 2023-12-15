@@ -1,81 +1,51 @@
 package com.na0.nayoung_code_interview.presentation.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.staggeredgrid.*
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.paging.compose.LazyPagingItems
 import com.na0.nayoung_code_interview.model.UnsplashResponse
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@ExperimentalCoroutinesApi
 @Composable
 fun SearchView(
     padding: PaddingValues,
     loading: Boolean,
-    images: List<UnsplashResponse>,
-    onChangeScrollPosition: (Int) -> Unit,
-    page: Int,
-    onTriggerNextPage: () -> Unit,
+    images: LazyPagingItems<UnsplashResponse>,
     onNavigateToImageDetailScreen: (UnsplashResponse) -> Unit,
     onSearchBookMarkClick: (UnsplashResponse) -> Unit,
     likeIds: List<String>,
 ) {
-    Box(modifier = Modifier
-        .padding(padding)
+    Box(
+        modifier = Modifier
+            .padding(padding)
     ) {
-        if (loading && images.isEmpty()) {
+        if (loading && images.itemCount == 0) {
             CircularIndeterminateProgressBar(isDisplayed = loading)
-        } else if (images.isEmpty()) {
+        } else if (images.itemCount == 0) {
             NothingHere()
         } else {
-            val listState = rememberLazyStaggeredGridState()
-            LazyVerticalStaggeredGrid(
-                state = listState,
-                columns = StaggeredGridCells.Fixed(3),
-                contentPadding = padding,
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
                 content = {
-                    itemsIndexed(
-                        items = images,
-                    ) { index, search ->
-
-                        onChangeScrollPosition(index)
-                        if (index == images.size - 1 && !loading) {
-                            onTriggerNextPage()
-                        }
-
-                        LaunchedEffect(listState) {
-                            snapshotFlow {
-                                listState.layoutInfo.visibleItemsInfo
-                            }.collect { infos ->
-                                if (infos.any {
-                                        it.index == images.size - 1
-                                    }) {
-                                    onTriggerNextPage()
+                    items(images.itemCount) { index ->
+                        images[index]?.let { image ->
+                            var id = ""
+                            for (likeId in likeIds) {
+                                if (likeId == image.id) {
+                                    id = likeId
                                 }
                             }
+                            SearchCard(
+                                search = image,
+                                onClick = { onNavigateToImageDetailScreen(image) },
+                                onSearchBookMarkClick = { onSearchBookMarkClick(image) },
+                                likeId = id,
+                            )
                         }
-
-//                        Log.d(TAG, "nextPage: index= $index, page= $page")
-//                        if ((index + 1) >= (page * PAGE_SIZE) && !loading) {
-//                            onTriggerNextPage()
-//                        }
-
-                        var id = ""
-                        for (likeId in likeIds) {
-                            if (likeId == search.id) {
-                                id = likeId
-                            }
-                        }
-                        SearchCard(
-                            search = search,
-                            onClick = { onNavigateToImageDetailScreen(search) },
-                            onSearchBookMarkClick = { onSearchBookMarkClick(search) },
-                            likeId = id
-                        )
                     }
                 }
             )

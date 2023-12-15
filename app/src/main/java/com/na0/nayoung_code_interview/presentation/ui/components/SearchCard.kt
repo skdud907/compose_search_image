@@ -27,7 +27,7 @@ fun SearchCard(
     search: UnsplashResponse,
     onClick: () -> Unit,
     onSearchBookMarkClick: () -> Unit,
-    likeId: String
+    likeId: String,
 ) {
     val isLiked = remember { mutableStateOf(false) }
     LaunchedEffect(likeId) {

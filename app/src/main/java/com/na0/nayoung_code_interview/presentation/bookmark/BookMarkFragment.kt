@@ -10,12 +10,16 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.na0.nayoung_code_interview.Application
 import com.na0.nayoung_code_interview.R
 import com.na0.nayoung_code_interview.presentation.ui.components.BookMarkView
@@ -91,8 +95,10 @@ class BookMarkFragment: Fragment() {
                                     bundle
                                 )
                             },
-                            onBookMarkClick = { likeImageEntity -> viewModel.onBookMarkClick(likeImageEntity) },
-                            likeIds = likeIds
+                            onBookMarkClick = { likeImageEntity ->
+                                viewModel.getAll()
+                                viewModel.onBookMarkClick(likeImageEntity) },
+                            likeIds = likeIds,
                         )
                     }
                 }

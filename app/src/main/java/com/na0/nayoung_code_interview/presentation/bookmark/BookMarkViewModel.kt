@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.*
+import androidx.paging.cachedIn
 import com.na0.nayoung_code_interview.model.UnsplashResponse
 import com.na0.nayoung_code_interview.model.db.LikeImageEntity
 import com.na0.nayoung_code_interview.repository.LikeImageRepository
@@ -131,6 +132,23 @@ class BookMarkViewModel @Inject constructor(
     private fun removeLikedImage(data: LikeImageEntity) {
         viewModelScope.launch {
             repository.delete(
+                LikeImageEntity(
+                    id = data.id,
+                    description = data.description ?: "",
+                    width = data.width,
+                    height = data.height,
+                    createdAt = data.createdAt,
+                    likes = isLike.value,
+                    urls = data.urls,
+                    user = data.user,
+                )
+            )
+        }
+    }
+
+    private fun updateLikedImage(data: LikeImageEntity) {
+        viewModelScope.launch {
+            repository.update(
                 LikeImageEntity(
                     id = data.id,
                     description = data.description ?: "",

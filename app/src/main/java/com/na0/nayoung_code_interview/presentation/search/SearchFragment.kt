@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.na0.nayoung_code_interview.Application
 import com.na0.nayoung_code_interview.R
 import com.na0.nayoung_code_interview.presentation.bookmark.BookMarkViewModel
@@ -47,11 +48,11 @@ class SearchFragment: Fragment() {
                 }
                 val likeImages = bookmarkViewModel.allImages.value
 
-                val images = viewModel.images.value
                 val query = viewModel.query.value
                 val loading = viewModel.loading.value
-                var page = viewModel.page.value
                 val scaffoldState = rememberScaffoldState()
+
+                val searchedImages = viewModel.searchedImages.collectAsLazyPagingItems()
 
                 AppTheme(
                     displayProgressBar = loading,
@@ -63,10 +64,10 @@ class SearchFragment: Fragment() {
                             SearchAppBar(
                                 query = query,
                                 onQueryChanged = viewModel::onQueryChanged,
-                                onExecuteSearch = { viewModel.onTriggerEvent(SearchState.NewSearchState) },
                                 onNavigationToBookMark = {
                                     findNavController().navigate(R.id.action_searchFragment_to_bookMarkFragment)
-                                }
+                                },
+                                onSearchClick = { viewModel.searchHeroes(query = query)}
                             )
                         },
                         scaffoldState = scaffoldState,
@@ -75,17 +76,11 @@ class SearchFragment: Fragment() {
                         }
                     ) {
                         val likeImageIdList: List<String> = likeImages.map { it.id }
-                        val searchImageIdList: List<String> = images.map { it.id }
-
-                        val likeIds: List<String> = likeImageIdList.filter { it in searchImageIdList }
 
                         SearchView(
                             padding = it,
                             loading = loading,
-                            images = images,
-                            onChangeScrollPosition = viewModel::onChangeImageScrollPosition,
-                            page = page,
-                            onTriggerNextPage = { viewModel.onTriggerEvent(SearchState.NextPageState) },
+                            images = searchedImages,
                             onNavigateToImageDetailScreen = { unsplashResponse ->
                                 val bundle = Bundle()
                                 bundle.putParcelable("unsplashResponse", unsplashResponse)
@@ -93,7 +88,7 @@ class SearchFragment: Fragment() {
                                 findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
                             },
                             onSearchBookMarkClick = { unsplashResponse -> bookmarkViewModel.onSearchBookMarkClick(unsplashResponse) },
-                            likeIds = likeIds
+                            likeIds = likeImageIdList,
                         )
                     }
                 }

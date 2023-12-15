@@ -13,6 +13,9 @@ interface LikeImageDao {
     @Delete
     suspend fun delete(vararg likeImages: LikeImageEntity)
 
+    @Update
+    suspend fun update(vararg likeImages: LikeImageEntity)
+
     @Query("DELETE FROM like_image_list")
     suspend fun clear()
 }

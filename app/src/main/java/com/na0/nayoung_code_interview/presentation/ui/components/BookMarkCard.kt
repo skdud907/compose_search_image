@@ -1,6 +1,5 @@
 package com.na0.nayoung_code_interview.presentation.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,7 +27,7 @@ fun BookMarkCard(
     likeImages: LikeImageEntity,
     onClick: () -> Unit,
     onBookMarkClick: () -> Unit,
-    likeId: String
+    likeId: String,
 ) {
     val isLiked = remember { mutableStateOf(false) }
     LaunchedEffect(likeId) {
@@ -69,9 +68,9 @@ fun BookMarkCard(
 
                 IconButton(
                     onClick = {
-                        onBookMarkClick()
-
                         isLiked.value = !isLiked.value
+
+                        onBookMarkClick()
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
