@@ -2,7 +2,6 @@ package com.na0.nayoung_code_interview.presentation.ui.theme
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
@@ -10,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.na0.nayoung_code_interview.presentation.ui.components.CircularIndeterminateProgressBar
 import com.na0.nayoung_code_interview.presentation.ui.components.DefaultSnackbar
 
 @SuppressLint("ConflictingOnColor")
@@ -20,11 +18,11 @@ private val LightThemeColors = lightColors(
     onPrimary = Black2,
     secondary = Color.White,
     secondaryVariant = Teal300,
-    onSecondary = Color.Black,
+    onSecondary = Red600,
     error = RedErrorDark,
     onError = RedErrorLight,
     background = Grey1,
-    onBackground = Color.Black,
+    onBackground = Grey2,
     surface = Color.White,
     onSurface = Black2,
 )
@@ -54,14 +52,13 @@ fun AppTheme(
         colors = if (darkTheme) DarkThemeColors else LightThemeColors,
         typography = QuickSandTypography,
         shapes = AppShapes
-    ){
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = if(!darkTheme) Grey1 else Color.Black)
-        ){
+        ) {
             content()
-            CircularIndeterminateProgressBar(isDisplayed = displayProgressBar, 0.3f)
             DefaultSnackbar(
                 snackbarHostState = scaffoldState.snackbarHostState,
                 onDismiss = {

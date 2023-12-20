@@ -4,47 +4,53 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import com.na0.nayoung_code_interview.Application
+import com.na0.nayoung_code_interview.model.UnsplashResponse
+import com.na0.nayoung_code_interview.model.db.LikeImageEntity
+import com.na0.nayoung_code_interview.presentation.bookmark.BookMarkViewModel
 import com.na0.nayoung_code_interview.presentation.ui.components.*
 import com.na0.nayoung_code_interview.presentation.ui.theme.AppTheme
+import com.na0.nayoung_code_interview.util.Constants.SCREEN_TYPE_BOOKMARK
+import com.na0.nayoung_code_interview.util.Constants.SCREEN_TYPE_SEARCH
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-const val IMAGE_HEIGHT = 260
+const val IMAGE_HEIGHT = 500
 
 @ExperimentalMaterialApi
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class DetailFragment: Fragment() {
-
     @Inject
     lateinit var application: Application
 
-    private val snackbarController = SnackbarController(lifecycleScope)
-
     private val viewModel: DetailViewModel by viewModels()
+    private val bookmarkViewModel: BookMarkViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.getString("recipeId")?.let { imageId ->
-            viewModel.onTriggerEvent(DetailState.GetDetailState(imageId))
+        arguments?.getInt("screenType")?.let { screenType ->
+            viewModel.onTriggerEvent(DetailState.GetScreenType(screenType))
+        }
+
+        arguments?.getParcelable<UnsplashResponse>("unsplashResponse")?.let { unsplashResponse ->
+            viewModel.onTriggerEvent(DetailState.GetDetailState(unsplashResponse))
+        }
+
+        arguments?.getParcelable<LikeImageEntity>("likeImages")?.let { likeImages ->
+            viewModel.onTriggerEvent(DetailState.GetLikedDetailState(likeImages))
         }
     }
 
@@ -55,52 +61,80 @@ class DetailFragment: Fragment() {
     ): View {
         return ComposeView(requireContext()).apply{
             setContent {
+                LaunchedEffect(true) {
+                    bookmarkViewModel.getAll()
+                }
+                val likeImages = bookmarkViewModel.allImages.value
 
                 val loading = viewModel.loading.value
-
-                val detail = viewModel.detail.value
-
+                val searchDetail = viewModel.searchDetail.value
+                val likedDetail = viewModel.likedDetail.value
                 val scaffoldState = rememberScaffoldState()
 
                 AppTheme(
                     displayProgressBar = loading,
                     scaffoldState = scaffoldState,
                     darkTheme = application.isDark.value,
-                ){
+                ) {
                     Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = {
+                                    Text(
+                                        text = "Detail",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+                                },
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = { findNavController().navigateUp() }
+                                    ) {
+                                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                                    }
+                                },
+                            )
+                        },
                         scaffoldState = scaffoldState,
-                        snackbarHost = {
-                            scaffoldState.snackbarHostState
-                        }
                     ) {
                         Box (
                             modifier = Modifier.fillMaxSize().padding(it)
-                        ){
-                            if (loading && detail == null) LoadingSearchShimmer(imageHeight = IMAGE_HEIGHT.dp)
-                            else detail?.let {
-                                if(it.id == "1") { // force an error to demo snackbar
-                                    snackbarController.getScope().launch {
-                                        snackbarController.showSnackbar(
-                                            scaffoldState = scaffoldState,
-                                            message = "An error occurred with this recipe",
-                                            actionLabel = "Ok"
-                                        )
+                        ) {
+                            if (viewModel.screenType.value == SCREEN_TYPE_SEARCH) {
+                                if (loading && searchDetail == null) LoadingSearchShimmer(imageHeight = IMAGE_HEIGHT.dp)
+                                else searchDetail?.let { detailData ->
+                                    val likeIds: List<String> = likeImages.map { it.id }
+                                    var id = ""
+                                    for (likeId in likeIds) {
+                                        if (likeId == detailData.id) {
+                                            id = likeId
+                                        }
                                     }
-                                }
-                                else{
                                     DetailView(
-                                        detail = it,
+                                        detail = detailData,
+                                        onDetailBookMarkClick = { bookmarkViewModel.onDetailBookMarkClick(detailData) },
+                                        likeId = id
+                                    )
+                                }
+                            } else if (viewModel.screenType.value == SCREEN_TYPE_BOOKMARK) {
+                                if (loading && likedDetail == null) LoadingSearchShimmer(imageHeight = IMAGE_HEIGHT.dp)
+                                else likedDetail?.let { likedDetailData ->
+                                    val likeIds: List<String> = likeImages.map { it.id }
+                                    var id = ""
+                                    for (likeId in likeIds) {
+                                        if (likeId == likedDetail.id) {
+                                            id = likeId
+                                        }
+                                    }
+                                    LikeDetailView(
+                                        likedDetail = likedDetailData,
+                                        onDetailBookMarkClick = { bookmarkViewModel.onLikeDetailBookMarkClick(likedDetail) },
+                                        likeId = id
                                     )
                                 }
                             }
-                            CircularIndeterminateProgressBar(isDisplayed = loading, verticalBias = 0.3f)
-                            DefaultSnackbar(
-                                snackbarHostState = scaffoldState.snackbarHostState,
-                                onDismiss = {
-                                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                                },
-                                modifier = Modifier.align(Alignment.BottomCenter)
-                            )
+                            CircularIndeterminateProgressBar(isDisplayed = loading)
                         }
                     }
                 }

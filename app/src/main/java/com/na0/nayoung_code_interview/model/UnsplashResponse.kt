@@ -6,13 +6,14 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class UnsplashResponse(
     val id: String,
-    val description: String?,
+    val description: String? = null,
     val width: Int,
     val height: Int,
+    val created_at: String,
     val likes: Int,
     val urls: Urls,
     val user: Users,
-) : Parcelable {
+): Parcelable {
     @Parcelize
     data class Urls(
         val raw: String,
@@ -20,18 +21,18 @@ data class UnsplashResponse(
         val regular: String,
         val small: String,
         val thumb: String
-    ) : Parcelable
+    ): Parcelable
 
     @Parcelize
     data class Users(
         val name: String,
         val profile_image: ProfileImages,
-    ): Parcelable{
+    ): Parcelable {
         @Parcelize
         data class ProfileImages(
             val small: String,
             val medium: String,
             val large: String,
-        ) : Parcelable
+        ): Parcelable
     }
 }

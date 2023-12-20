@@ -14,11 +14,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun NothingHere(){
+fun NothingHere() {
     Box(
         modifier = Modifier.fillMaxSize()
-    ){
-        Column(modifier = Modifier.align(Alignment.Center)){
+    ) {
+        Column(modifier = Modifier.align(Alignment.Center)) {
             Text(
                 modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally),
                 text = "¯\\_(ツ)_/¯",

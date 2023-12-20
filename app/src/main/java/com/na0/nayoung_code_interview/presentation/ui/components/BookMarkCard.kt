@@ -16,22 +16,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.na0.nayoung_code_interview.model.UnsplashResponse
+import com.na0.nayoung_code_interview.model.db.LikeImageEntity
 import com.na0.nayoung_code_interview.util.DEFAULT_IMAGE_IMAGE
 import com.na0.nayoung_code_interview.util.loadPicture
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @Composable
-fun SearchCard(
-    search: UnsplashResponse,
+fun BookMarkCard(
+    likeImages: LikeImageEntity,
     onClick: () -> Unit,
-    onSearchBookMarkClick: () -> Unit,
+    onBookMarkClick: () -> Unit,
     likeId: String,
 ) {
     val isLiked = remember { mutableStateOf(false) }
     LaunchedEffect(likeId) {
-        isLiked.value = (likeId == search.id)
+        isLiked.value = (likeId == likeImages.id)
     }
 
     Card(
@@ -54,11 +54,11 @@ fun SearchCard(
                     .height(150.dp)
             ) {
                 val image =
-                    loadPicture(url = search.urls.thumb, defaultImage = DEFAULT_IMAGE_IMAGE).value
+                    loadPicture(url = likeImages.urls, defaultImage = DEFAULT_IMAGE_IMAGE).value
                 image?.let { img ->
                     Image(
                         bitmap = img.asImageBitmap(),
-                        contentDescription = "${search.description}",
+                        contentDescription = "${likeImages.description}",
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(MaterialTheme.shapes.small),
@@ -68,9 +68,9 @@ fun SearchCard(
 
                 IconButton(
                     onClick = {
-                        onSearchBookMarkClick()
-
                         isLiked.value = !isLiked.value
+
+                        onBookMarkClick()
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)

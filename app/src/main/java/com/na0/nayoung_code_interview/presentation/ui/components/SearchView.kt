@@ -1,55 +1,54 @@
 package com.na0.nayoung_code_interview.presentation.ui.components
 
-import android.nfc.tech.MifareUltralight.PAGE_SIZE
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.paging.compose.LazyPagingItems
 import com.na0.nayoung_code_interview.model.UnsplashResponse
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@ExperimentalMaterialApi
-@ExperimentalCoroutinesApi
 @Composable
 fun SearchView(
     padding: PaddingValues,
     loading: Boolean,
-    recipes: List<UnsplashResponse>,
-    onChangeScrollPosition: (Int) -> Unit,
-    page: Int,
-    onTriggerNextPage: () -> Unit,
-    onNavigateToRecipeDetailScreen: (String) -> Unit,
-){
-    Box(modifier = Modifier
-        .background(color = MaterialTheme.colors.surface).padding(padding)
+    images: LazyPagingItems<UnsplashResponse>,
+    onNavigateToImageDetailScreen: (UnsplashResponse) -> Unit,
+    onSearchBookMarkClick: (UnsplashResponse) -> Unit,
+    likeIds: List<String>,
+) {
+    Box(
+        modifier = Modifier
+            .padding(padding)
     ) {
-        if (loading && recipes.isEmpty()) {
-            HorizontalDottedProgressBar()
-//            LoadingRecipeListShimmer(imageHeight = 250.dp,)
-        }
-        else if(recipes.isEmpty()){
+        if (loading && images.itemCount == 0) {
+            CircularIndeterminateProgressBar(isDisplayed = loading)
+        } else if (images.itemCount == 0) {
             NothingHere()
-        }
-        else {
-            LazyColumn{
-                itemsIndexed(
-                    items = recipes
-                ) { index, search ->
-                    onChangeScrollPosition(index)
-                    if ((index + 1) >= (page * PAGE_SIZE) && !loading) {
-                        onTriggerNextPage()
-                    }
-                    SearchCard(
-                        search = search,
-                        onClick = { onNavigateToRecipeDetailScreen(search.id)
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                content = {
+                    items(images.itemCount) { index ->
+                        images[index]?.let { image ->
+                            var id = ""
+                            for (likeId in likeIds) {
+                                if (likeId == image.id) {
+                                    id = likeId
+                                }
+                            }
+                            SearchCard(
+                                search = image,
+                                onClick = { onNavigateToImageDetailScreen(image) },
+                                onSearchBookMarkClick = { onSearchBookMarkClick(image) },
+                                likeId = id,
+                            )
                         }
-                    )
+                    }
                 }
-            }
+            )
         }
     }
 }

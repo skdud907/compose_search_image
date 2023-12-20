@@ -13,7 +13,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.na0.nayoung_code_interview.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-const val DEFAULT_RECIPE_IMAGE = R.drawable.empty_plate
+const val DEFAULT_IMAGE_IMAGE = R.drawable.empty_plate
 
 @ExperimentalCoroutinesApi
 @Composable
@@ -25,7 +25,7 @@ fun loadPicture(url: String, @DrawableRes defaultImage: Int): MutableState<Bitma
     Glide.with(LocalContext.current)
         .asBitmap()
         .load(defaultImage)
-        .into(object : CustomTarget<Bitmap>() {
+        .into(object: CustomTarget<Bitmap>() {
             override fun onLoadCleared(placeholder: Drawable?) { }
             override fun onResourceReady(
                 resource: Bitmap,

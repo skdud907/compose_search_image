@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.na0.nayoung_code_interview.model.UnsplashResponse
+import com.na0.nayoung_code_interview.model.db.LikeImageEntity
 import com.na0.nayoung_code_interview.presentation.detail.DetailState.GetDetailState
 import com.na0.nayoung_code_interview.repository.ImageRepository
 import com.na0.nayoung_code_interview.util.Constants
@@ -15,57 +16,75 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
-const val STATE_KEY_RECIPE = "recipe.state.recipe.key"
+const val STATE_KEY_IMAGE = "image.state.image.key"
+const val STATE_KEY_LIKE_IMAGE = "image.state.image.like.key"
 
 @ExperimentalCoroutinesApi
 @HiltViewModel
-class DetailViewModel
-@Inject
-constructor(
+class DetailViewModel @Inject constructor(
     private val repository: ImageRepository,
     private val state: SavedStateHandle,
-): ViewModel(){
-
-    val detail: MutableState<UnsplashResponse?> = mutableStateOf(null)
-
+): ViewModel() {
+    val searchDetail: MutableState<UnsplashResponse?> = mutableStateOf(null)
+    val likedDetail: MutableState<LikeImageEntity?> = mutableStateOf(null)
     val loading = mutableStateOf(false)
+    val screenType = mutableStateOf(999)
 
     init {
-        // restore if process dies
-        state.get<String>(STATE_KEY_RECIPE)?.let{ recipeId ->
-            onTriggerEvent(GetDetailState(recipeId))
+        state.get<UnsplashResponse>(STATE_KEY_IMAGE)?.let{ unsplashResponse ->
+            onTriggerEvent(GetDetailState(unsplashResponse))
+        }
+        state.get<LikeImageEntity>(STATE_KEY_LIKE_IMAGE)?.let{ likeImageEntity ->
+            onTriggerEvent(DetailState.GetLikedDetailState(likeImageEntity))
         }
     }
 
-    fun onTriggerEvent(event: DetailState){
+    fun onTriggerEvent(event: DetailState) {
         viewModelScope.launch {
             try {
-                when(event){
+                when(event) {
                     is GetDetailState -> {
-                        if(detail.value == null){
-                            getDetail(event.id)
+                        if (searchDetail.value == null) {
+                            getDetail(event.unsplashResponse)
                         }
                     }
+                    is DetailState.GetLikedDetailState -> {
+                        if (searchDetail.value == null) {
+                            getLikedDetail(event.likesImages)
+                        }
+                    }
+                    is DetailState.GetScreenType -> {
+                        screenType.value = event.screenType
+                    }
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e(Constants.TAG, "launchJob: Exception: ${e}, ${e.cause}")
                 e.printStackTrace()
             }
         }
     }
 
-    private suspend fun getDetail(id: String){
+    private suspend fun getDetail(unsplashResponse: UnsplashResponse) {
         loading.value = true
 
-        // simulate a delay to show loading
         delay(1000)
 
-        val detail = repository.get(id=id)
-        this.detail.value = detail
+        this.searchDetail.value = unsplashResponse
 
-        state.set(STATE_KEY_RECIPE, detail.id)
+        state.set(STATE_KEY_IMAGE, searchDetail.value!!.id)
+
+        loading.value = false
+    }
+
+    private suspend fun getLikedDetail(likeImageEntity: LikeImageEntity) {
+        loading.value = true
+
+        delay(1000)
+
+        this.likedDetail.value = likeImageEntity
+
+        state.set(STATE_KEY_LIKE_IMAGE, likedDetail.value!!.id)
 
         loading.value = false
     }
